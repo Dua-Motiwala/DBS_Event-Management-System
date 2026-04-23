@@ -1,0 +1,10 @@
+import oracledb
+
+def get_connection():
+    conn = oracledb.connect(
+        user="EventDB",          # your username
+        password="event",
+        dsn="localhost/XEPDB1"  # default for Oracle XE
+    )
+    return conn
+

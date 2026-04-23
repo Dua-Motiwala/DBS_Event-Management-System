@@ -1,3 +1,4 @@
+
 /* =========================================================
    USERS TABLE
    Stores all system users (Admin, Organizer, Attendee)
@@ -7,7 +8,7 @@ CREATE TABLE Users (
     UserID NUMBER PRIMARY KEY,
     Name VARCHAR2(100) NOT NULL,
     Email VARCHAR2(100) UNIQUE NOT NULL,
-    Password VARCHAR2(255) NOT NULL,
+    Password VARCHAR2(100) NOT NULL,
     Role VARCHAR2(20) CHECK (Role IN ('Admin','Organizer','Attendee'))
 );
 
@@ -106,8 +107,7 @@ CREATE TABLE Registrations (
     EventID NUMBER,
     RegDate DATE DEFAULT SYSDATE,
     FOREIGN KEY (UserID) REFERENCES Users(UserID),
-    FOREIGN KEY (EventID) REFERENCES Events(EventID),
-    UNIQUE (UserID, EventID)
+    FOREIGN KEY (EventID) REFERENCES Events(EventID)
 );
 
 CREATE SEQUENCE reg_seq;
@@ -220,7 +220,3 @@ BEGIN
 END;
 /
 ------------------------------------------------------------
-
-ALTER TABLE Users MODIFY (Password VARCHAR2(255));
-
-ALTER TABLE Registrations ADD CONSTRAINT unique_registration UNIQUE (UserID, EventID);
