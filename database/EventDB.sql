@@ -1,3 +1,4 @@
+
 /* =========================================================
    USERS TABLE
    Stores all system users (Admin, Organizer, Attendee)
@@ -224,3 +225,116 @@ END;
 ALTER TABLE Users MODIFY (Password VARCHAR2(255));
 
 ALTER TABLE Registrations ADD CONSTRAINT unique_registration UNIQUE (UserID, EventID);
+
+
+/* =========================================================
+   VIEWS
+   Requirement: Implement Views
+========================================================= */
+
+-- View that joins Events, Venues, and Categories (Requirement: Joins)
+CREATE OR REPLACE VIEW vw_Event_Details AS
+SELECT 
+    e.EventID, 
+    e.Title, 
+    e.EventDate, 
+    v.Name AS VenueName, 
+    v.Location, 
+    c.CategoryName,
+    u.Name AS OrganizerName
+FROM Events e
+JOIN Venues v ON e.VenueID = v.VenueID
+JOIN Categories c ON e.CategoryID = c.CategoryID
+JOIN Users u ON e.UserID = u.UserID;
+
+-- View for Admin stats using built-in functions (Requirement: Built-in SQL functions)
+CREATE OR REPLACE VIEW vw_Organizer_Stats AS
+SELECT 
+    u.UserID, 
+    u.Name, 
+    COUNT(e.EventID) AS TotalEvents,
+    SUM(p.Amount) AS TotalRevenue
+FROM Users u
+LEFT JOIN Events e ON u.UserID = e.UserID
+LEFT JOIN Payments p ON e.EventID = p.EventID
+WHERE u.Role = 'Organizer'
+GROUP BY u.UserID, u.Name;
+
+
+/* =========================================================
+   SUBPROGRAMS (PROCEDURES)
+   Requirement: One program/subprogram for each user role
+========================================================= */
+
+-- 1. ADMIN SUBPROGRAM: Safely delete a user and related logs
+CREATE OR REPLACE PROCEDURE sp_Delete_User(p_userid IN NUMBER) IS
+BEGIN
+    -- Transaction handling: Procedures often encapsulate logic
+    DELETE FROM Admin_Log WHERE UserID = p_userid;
+    DELETE FROM Users WHERE UserID = p_userid;
+    COMMIT;
+END;
+/
+
+-- 2. ORGANIZER SUBPROGRAM: Cancel an event (Delete operation)
+CREATE OR REPLACE PROCEDURE sp_Cancel_Event(p_eventid IN NUMBER) IS
+BEGIN
+    -- Delete dependencies first
+    DELETE FROM Event_Schedule WHERE EventID = p_eventid;
+    DELETE FROM Registrations WHERE EventID = p_eventid;
+    DELETE FROM Payments WHERE EventID = p_eventid;
+    DELETE FROM Feedback WHERE EventID = p_eventid;
+    DELETE FROM Events WHERE EventID = p_eventid;
+    COMMIT;
+END;
+/
+
+-- 3. ATTENDEE SUBPROGRAM: Handle event registration with validation
+CREATE OR REPLACE PROCEDURE sp_Register_For_Event(
+    p_userid IN NUMBER, 
+    p_eventid IN NUMBER,
+    p_status OUT VARCHAR2
+) IS
+    v_count NUMBER;
+BEGIN
+    -- Check if already registered
+    SELECT COUNT(*) INTO v_count 
+    FROM Registrations 
+    WHERE UserID = p_userid AND EventID = p_eventid;
+    
+    IF v_count > 0 THEN
+        p_status := 'ALREADY_REGISTERED';
+    ELSE
+        INSERT INTO Registrations (UserID, EventID, RegDate)
+        VALUES (p_userid, p_eventid, SYSDATE);
+        p_status := 'SUCCESS';
+    END IF;
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        p_status := 'ERROR: ' || SQLERRM;
+        ROLLBACK;
+END;
+/
+
+/*
+BEGIN
+   FOR t IN (SELECT table_name FROM user_tables) LOOP
+      EXECUTE IMMEDIATE 'DROP TABLE ' || t.table_name || ' CASCADE CONSTRAINTS';
+   END LOOP;
+END;
+/
+
+BEGIN
+   FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
+      EXECUTE IMMEDIATE 'DROP SEQUENCE ' || s.sequence_name;
+   END LOOP;
+END;
+/
+
+BEGIN
+   FOR tr IN (SELECT trigger_name FROM user_triggers) LOOP
+      EXECUTE IMMEDIATE 'DROP TRIGGER ' || tr.trigger_name;
+   END LOOP;
+END;
+/ */
