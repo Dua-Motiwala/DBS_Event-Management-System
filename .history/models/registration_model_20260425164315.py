@@ -28,5 +28,6 @@ class AdminLog(db.Model):
     __tablename__ = 'ADMIN_LOG'
     logid = db.Column('ADMIN_LOG', db.Integer, primary_key=True)
     userid = db.Column('USERID', db.Integer, db.ForeignKey('USERS.USERID'))
-    actiontime = db.Column('ACTIONTIME', db.DateTime, default=datetime.utcnow)
-    action = db.Column('ACTION', db.String(255))
+    actiontime = db.Column('ADMIN_LOG', db.DateTime, default=datetime.utcnow)
+        rating = db.Column('RATING', db.Integer) # 1-5
+    

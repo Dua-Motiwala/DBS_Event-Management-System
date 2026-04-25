@@ -13,20 +13,21 @@ class Payment(db.Model):
     paymentid = db.Column('PAYMENTID', db.Integer, primary_key=True)
     paymentstatus = db.Column('PAYMENTSTATUS', db.String(20))
     eventid = db.Column('EVENTID', db.Integer, db.ForeignKey('EVENTS.EVENTID'))
-    amount = db.Column('AMOUNT', db.Numeric(10, 2))
+    amount = db.Column('Am', db.Decimal(10, 2))
     userid = db.Column('USERID', db.Integer, db.ForeignKey('USERS.USERID'))
  
 class Feedback(db.Model):
     __tablename__ = 'FEEDBACK'
-    feedbackid = db.Column('FEEDBACKID', db.Integer, primary_key=True)
+    feedbackid = db.Column('FEEDBACK', db.Integer, primary_key=True)
     userid = db.Column('USERID', db.Integer, db.ForeignKey('USERS.USERID'))
     eventid = db.Column('EVENTID', db.Integer, db.ForeignKey('EVENTS.EVENTID'))
-    rating = db.Column('RATING', db.Integer) # 1-5
-    feedbacktext = db.Column('FEEDBACKTEXT', db.String(255))
+    rating = db.Column('FEEDBACK', db.Integer, db.CheckConstraint("rating > 0 and rating < 6"))
+    feedbacktext = db.Column('FEEDBACK', db.String(20))
 
 class AdminLog(db.Model):
     __tablename__ = 'ADMIN_LOG'
     logid = db.Column('ADMIN_LOG', db.Integer, primary_key=True)
     userid = db.Column('USERID', db.Integer, db.ForeignKey('USERS.USERID'))
-    actiontime = db.Column('ACTIONTIME', db.DateTime, default=datetime.utcnow)
-    action = db.Column('ACTION', db.String(255))
+    actiontime = db.Column('ADMIN_LOG', db.DateTime, default=datetime.utcnow)
+    action = db.Column('ADMIN_LOG', db.String(20))
+    

@@ -32,6 +32,6 @@ class EventSchedule(db.Model):
     __tablename__ = 'EVENT_SCHEDULE'
     scheduleid = db.Column('SCHEDULEID', db.Integer, primary_key=True)
     eventid = db.Column('EVENTID', db.Integer, db.ForeignKey('EVENTS.EVENTID'))
-    starttime = db.Column('STARTTIME', db.DateTime)   
-    endtime = db.Column('ENDTIME', db.DateTime)
+    start_time = db.Column('STARTTIME', db.DateTime)   
+    end_time = db.Column('ENDTIME', db.DateTime)
     

@@ -23,6 +23,7 @@ class Event(db.Model):
     eventdate = db.Column('EVENTDATE', db.Date)
     venueid = db.Column('VENUEID', db.Integer, db.ForeignKey('VENUES.VENUEID'))
     categoryid = db.Column('CATEGORYID', db.Integer, db.ForeignKey('CATEGORIES.CATEGORYID'))
+    
     registrations = db.relationship('Registration', backref='event', lazy=True)
     payments = db.relationship('Payment', backref='event', lazy=True)
     feedbacks = db.relationship('Feedback', backref='event', lazy=True)
@@ -32,6 +33,6 @@ class EventSchedule(db.Model):
     __tablename__ = 'EVENT_SCHEDULE'
     scheduleid = db.Column('SCHEDULEID', db.Integer, primary_key=True)
     eventid = db.Column('EVENTID', db.Integer, db.ForeignKey('EVENTS.EVENTID'))
-    starttime = db.Column('STARTTIME', db.DateTime)   
-    endtime = db.Column('ENDTIME', db.DateTime)
+    start_time = db.Column('START_TIME', db.DateTime)   
+    end_time = db.Column('END_TIME', db.DateTime)
     
