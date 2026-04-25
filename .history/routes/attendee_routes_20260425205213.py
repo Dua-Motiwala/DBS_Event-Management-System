@@ -16,24 +16,47 @@ def dashboard():
 @attendee_bp.route('/register-event/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def register_event(event_id):
-    
-    # Registers user for an event using a stored procedure
+    try:
+        # Calling Subprogram with OUT parameter (Requirement: Program/Subprogram)
+        # In Oracle, we can use a PL/SQL block to get the OUT parameter
+        import oracledb
+        cursor = db.session.connection().connection.cursor()
+        v_status = cursor.var(oracledb.STRING)
+        cursor.execute("BEGIN sp_Register_For_Event(:uid, :eid, :status); END;", 
+                       uid=current_user.userid, eid=event_id, status=v_status)
+        
+        status = v_status.getvalue()
+        
+        if status == 'SUCCESS':
+            db.session.commit()
+            flash('Successfully registered for the event!', 'success')
+        elif status == 'ALREADY_REGISTERED':
+            flash('You are already registered for this event.', 'info')
+        else:
+            flash(f'Registration failed: {status}', 'danger')
             
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error during registration: {e}', 'danger')
+        
     return redirect(url_for('attendee.dashboard'))
 
 @attendee_bp.route('/make-payment/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def make_payment(event_id):
-    
-    # Stores payment details for an event
-    
+    if request.method == 'POST':
+        amount = request.form.get('amount')
+        new_payment = Payment(userid=current_user.userid, eventid=event_id, amount=amount, paymentstatus='Paid')
+        db.session.add(new_payment)
+        db.session.commit()
+        flash('Payment recorded successfully!', 'success')
+        return redirect(url_for('attendee.payment_history'))
     return render_template('attendee/make_payment.html', event_id=event_id)
 
 @attendee_bp.route('/my-registrations')
 @login_required
 def my_registrations():
     
-    # Shows all events the user has registered for
     
     return render_template('attendee/my_registrations.html', registrations=registrations)
 
@@ -41,7 +64,7 @@ def my_registrations():
 @login_required
 def payment_history():
     
-    # Shows all payments made by the user
+    #
     
     return render_template('attendee/payments.html', payments=payments)
 
@@ -49,6 +72,6 @@ def payment_history():
 @login_required
 def give_feedback(event_id):
     
-    # Lets user submit rating and comments for an event
+    # 
     
     return render_template('attendee/feedback.html', event_id=event_id)

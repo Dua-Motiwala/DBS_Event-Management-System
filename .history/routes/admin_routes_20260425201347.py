@@ -137,7 +137,7 @@ def reports():
     """)
     event_details = db.session.execute(sql).fetchall()
     
-    # Using raw SQL to count events that exist in the selected category through dynamic input handling    
+    #     # Using raw SQL to fetch event details from the View we created Another query with built-in functions and dynamic input handling    
     category_id = request.args.get('category_id')
     if category_id:
         stats_sql = text("""

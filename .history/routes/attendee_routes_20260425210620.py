@@ -41,7 +41,7 @@ def my_registrations():
 @login_required
 def payment_history():
     
-    # Shows all payments made by the user
+    #
     
     return render_template('attendee/payments.html', payments=payments)
 
@@ -49,6 +49,6 @@ def payment_history():
 @login_required
 def give_feedback(event_id):
     
-    # Lets user submit rating and comments for an event
+    # 
     
     return render_template('attendee/feedback.html', event_id=event_id)

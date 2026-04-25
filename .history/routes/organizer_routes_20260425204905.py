@@ -81,7 +81,8 @@ def view_feedback(event_id):
 @login_required
 @organizer_required
 def delete_event(event_id):
-    
-    # Delete an event completely
+     as e:
+        db.session.rollback()
+        flash(f'Error cancelling event: {e}', 'danger')
     
     return redirect(url_for('organizer.dashboard'))

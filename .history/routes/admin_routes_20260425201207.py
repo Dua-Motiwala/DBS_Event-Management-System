@@ -130,14 +130,15 @@ def view_logs():
 @admin_required
 def reports():
 
-    # Using raw SQL to fetch event details from the View we created
+    # Using raw SQL to fetch data from the View we created
     sql = text("""
         SELECT * FROM vw_Event_Details 
         ORDER BY EventDate DESC
     """)
     event_details = db.session.execute(sql).fetchall()
     
-    # Using raw SQL to count events that exist in the selected category through dynamic input handling    
+    # Another query with built-in functions and dynamic input handling
+    # Requirement: Dynamic user input handling
     category_id = request.args.get('category_id')
     if category_id:
         stats_sql = text("""

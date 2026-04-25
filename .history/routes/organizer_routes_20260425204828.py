@@ -81,7 +81,18 @@ def view_feedback(event_id):
 @login_required
 @organizer_required
 def delete_event(event_id):
+    event = Event.query.get_or_404(event_id)
+    if event.userid != current_user.userid:
+        flash('Unauthorized.', 'danger')
+        return redirect(url_for('organizer.dashboard'))
     
-    # Delete an event completely
+    try:
+        # Calling Subprogram (Requirement: Program/Subprogram)
+        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
+        db.session.commit()
+        flash('Event cancelled and deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error cancelling event: {e}', 'danger')
     
     return redirect(url_for('organizer.dashboard'))

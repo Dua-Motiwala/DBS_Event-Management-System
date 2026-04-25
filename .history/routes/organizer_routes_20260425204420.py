@@ -37,51 +37,90 @@ def create_event():
 @organizer_required
 def manage_event(event_id):
     
-    # View single event details
-    
     return render_template('organizer/manage_event.html', event=event)
 
 @organizer_bp.route('/edit-event/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 @organizer_required
 def edit_event(event_id):
-
-    # Update event information
-    
+    event = Event.query.get_or_404(event_id)
+    if event.userid != current_user.userid:
+        flash('Unauthorized.', 'danger')
+        return redirect(url_for('organizer.dashboard'))
+        
+    if request.method == 'POST':
+        event.title = request.form.get('title')
+        date_str = request.form.get('date')
+        from datetime import datetime
+        event.eventdate = datetime.strptime(date_str, '%Y-%m-%d').date()
+        event.venueid = request.form.get('venue')
+        event.categoryid = request.form.get('category')
+        
+        db.session.commit()
+        flash('Event updated!', 'success')
+        return redirect(url_for('organizer.manage_event', event_id=event_id))
+        
+    venues = Venue.query.all()
+    categories = Category.query.all()
     return render_template('organizer/edit_event.html', event=event, venues=venues, categories=categories)
 
 @organizer_bp.route('/event-schedule/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 @organizer_required
 def manage_schedule(event_id):
-
-    # Add timing slots for event
-    
+    event = Event.query.get_or_404(event_id)
+    if request.method == 'POST':
+        start_str = request.form.get('start_time')
+        end_str = request.form.get('end_time')
+        
+        try:
+            from datetime import datetime
+            # Format from HTML datetime-local is YYYY-MM-DDTHH:MM
+            start_time = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
+            end_time = datetime.strptime(end_str, '%Y-%m-%dT%H:%M')
+            
+            new_slot = EventSchedule(eventid=event_id, starttime=start_time, endtime=end_time)
+            db.session.add(new_slot)
+            db.session.commit()
+            flash('Schedule slot added!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding schedule: {e}', 'danger')
+            
     return render_template('organizer/schedule.html', event=event)
 
 @organizer_bp.route('/participants/<int:event_id>')
 @login_required
 @organizer_required
 def view_participants(event_id):
-    
-    # See who registered for event
-    
+    event = Event.query.get_or_404(event_id)
+    participants = Registration.query.filter_by(eventid=event_id).all()
     return render_template('organizer/participants.html', event=event, participants=participants)
 
 @organizer_bp.route('/feedback/<int:event_id>')
 @login_required
 @organizer_required
 def view_feedback(event_id):
-    
-    # Show event reviews
-    
+    event = Event.query.get_or_404(event_id)
+    feedbacks = Feedback.query.filter_by(eventid=event_id).all()
     return render_template('organizer/feedback.html', event=event, feedbacks=feedbacks)
 
 @organizer_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
 def delete_event(event_id):
+    event = Event.query.get_or_404(event_id)
+    if event.userid != current_user.userid:
+        flash('Unauthorized.', 'danger')
+        return redirect(url_for('organizer.dashboard'))
     
-    # Delete an event completely
+    try:
+        # Calling Subprogram (Requirement: Program/Subprogram)
+        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
+        db.session.commit()
+        flash('Event cancelled and deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error cancelling event: {e}', 'danger')
     
     return redirect(url_for('organizer.dashboard'))

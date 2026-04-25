@@ -64,7 +64,6 @@ def manage_schedule(event_id):
 @organizer_required
 def view_participants(event_id):
     
-    # See who registered for event
     
     return render_template('organizer/participants.html', event=event, participants=participants)
 
@@ -72,16 +71,26 @@ def view_participants(event_id):
 @login_required
 @organizer_required
 def view_feedback(event_id):
-    
-    # Show event reviews
-    
+    event = Event.query.get_or_404(event_id)
+    feedbacks = Feedback.query.filter_by(eventid=event_id).all()
     return render_template('organizer/feedback.html', event=event, feedbacks=feedbacks)
 
 @organizer_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
 def delete_event(event_id):
+    event = Event.query.get_or_404(event_id)
+    if event.userid != current_user.userid:
+        flash('Unauthorized.', 'danger')
+        return redirect(url_for('organizer.dashboard'))
     
-    # Delete an event completely
+    try:
+        # Calling Subprogram (Requirement: Program/Subprogram)
+        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
+        db.session.commit()
+        flash('Event cancelled and deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error cancelling event: {e}', 'danger')
     
     return redirect(url_for('organizer.dashboard'))

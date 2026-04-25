@@ -17,15 +17,14 @@ def dashboard():
 @login_required
 def register_event(event_id):
     
-    # Registers user for an event using a stored procedure
-            
+        
     return redirect(url_for('attendee.dashboard'))
 
 @attendee_bp.route('/make-payment/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def make_payment(event_id):
     
-    # Stores payment details for an event
+    # 
     
     return render_template('attendee/make_payment.html', event_id=event_id)
 
@@ -33,7 +32,7 @@ def make_payment(event_id):
 @login_required
 def my_registrations():
     
-    # Shows all events the user has registered for
+    #
     
     return render_template('attendee/my_registrations.html', registrations=registrations)
 
@@ -41,7 +40,7 @@ def my_registrations():
 @login_required
 def payment_history():
     
-    # Shows all payments made by the user
+    #
     
     return render_template('attendee/payments.html', payments=payments)
 
@@ -49,6 +48,6 @@ def payment_history():
 @login_required
 def give_feedback(event_id):
     
-    # Lets user submit rating and comments for an event
+    # 
     
     return render_template('attendee/feedback.html', event_id=event_id)

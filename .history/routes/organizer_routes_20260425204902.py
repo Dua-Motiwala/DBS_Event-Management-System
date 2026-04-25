@@ -82,6 +82,12 @@ def view_feedback(event_id):
 @organizer_required
 def delete_event(event_id):
     
-    # Delete an event completely
+        # Calling Subprogram (Requirement: Program/Subprogram)
+        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
+        db.session.commit()
+        flash('Event cancelled and deleted successfully.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error cancelling event: {e}', 'danger')
     
     return redirect(url_for('organizer.dashboard'))

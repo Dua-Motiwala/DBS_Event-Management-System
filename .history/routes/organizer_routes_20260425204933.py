@@ -83,5 +83,4 @@ def view_feedback(event_id):
 def delete_event(event_id):
     
     # Delete an event completely
-    
     return redirect(url_for('organizer.dashboard'))
