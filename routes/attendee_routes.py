@@ -18,18 +18,29 @@ def dashboard():
 def register_event(event_id):
 
     # Registers user for an event using a stored procedure
-    if request.method == 'POST':
-        registration = Registration(
-            regid=regid,#should this be surrogate key(auto incrementing)
-            userid=current_user.user_id,
-            eventid=event_id
-        )
-        
-        db.session.add(registration)
-        db.session.commit()
-        
-        flash('Registered for Event Successfully', 'success')
-    return redirect(url_for('attendee.dashboard'))      
+    try:
+        # Calling Subprogram with OUT parameter 
+        import oracledb
+        cursor = db.session.connection().connection.cursor()
+        v_status = cursor.var(oracledb.STRING)
+        cursor.execute("BEGIN sp_Register_For_Event(:uid, :eid, :status); END;",
+                        uid=current_user.userid, eid=event_id, status=v_status)
+       
+        status = v_status.getvalue()
+       
+        if status == 'SUCCESS':
+            db.session.commit()
+            flash('Successfully registered for the event!', 'success')
+        elif status == 'ALREADY_REGISTERED':
+            flash('You are already registered for this event.', 'info')
+        else:
+            flash(f'Registration failed: {status}', 'danger')
+           
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error during registration: {e}', 'danger')
+       
+    return redirect(url_for('attendee.dashboard'))
 
 @attendee_bp.route('/make-payment/<int:event_id>', methods=['GET', 'POST'])
 @login_required
@@ -37,15 +48,13 @@ def make_payment(event_id):
     
     # Stores payment details for an event
     if request.method == 'POST':
-        amount = request.form.get('amount')
         paymentstatus = request.form.get('paymentstatus')
 
         payment = Payment(
-            paymentid=paymentid,#should this be surrogate key(auto incrementing)
             userid=current_user.user_id,
             eventid=event_id,
-            paymentstatus=paymentstatus
-            amount=amount
+            paymentstatus=paymentstatus,
+            amount=500
         )
         
         db.session.add(payment)
@@ -82,10 +91,9 @@ def give_feedback(event_id):
         feedback_text = request.form.get('feedback_text')
 
         feedback = Feedback(
-            feedbackid=feedback_id,#should this be surrogate key(auto incrementing)
             userid=current_user.user_id,
             eventid=event_id,
-            rating=rating
+            rating=rating,
             feedbacktext=feedback_text
         )
         
