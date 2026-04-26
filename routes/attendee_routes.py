@@ -4,6 +4,7 @@ from models.user_model import db
 from sqlalchemy import text
 from models.event_model import Event
 from models.registration_model import Registration, Payment, Feedback
+import oracledb
 
 attendee_bp = Blueprint('attendee', __name__)
 
@@ -13,57 +14,53 @@ def dashboard():
     registrations = Registration.query.filter_by(userid=current_user.userid).all()
     return render_template('dashboards/attendee.html', registrations=registrations)
 
-@attendee_bp.route('/register-event/<int:event_id>', methods=['GET', 'POST'])
-@login_required
-def register_event(event_id):
-
-    # Registers user for an event using a stored procedure
+def register_and_pay(event_id):
     try:
-        # Calling Subprogram with OUT parameter 
-        import oracledb
         cursor = db.session.connection().connection.cursor()
         v_status = cursor.var(oracledb.STRING)
-        cursor.execute("BEGIN sp_Register_For_Event(:uid, :eid, :status); END;",
-                        uid=current_user.userid, eid=event_id, status=v_status)
-       
+
+        cursor.execute(
+            "BEGIN sp_Register_For_Event(:uid, :eid, :status); END;",
+            uid=current_user.userid,
+            eid=event_id,
+            status=v_status
+        )
+
         status = v_status.getvalue()
-       
-        if status == 'SUCCESS':
-            db.session.commit()
-            flash('Successfully registered for the event!', 'success')
-        elif status == 'ALREADY_REGISTERED':
-            flash('You are already registered for this event.', 'info')
-        else:
-            flash(f'Registration failed: {status}', 'danger')
-           
+
+        if status != 'SUCCESS':
+            if status == 'ALREADY_REGISTERED':
+                flash('Already registered for this event.', 'info')
+            else:
+                flash(f'Registration failed: {status}', 'danger')
+            return redirect(url_for('attendee.dashboard'))
+
+        existing = Payment.query.filter_by(
+            userid=current_user.userid,
+            eventid=event_id
+        ).first()
+
+        if existing:
+            flash('Already registered and paid for this event.', 'info')
+            return redirect(url_for('attendee.payment_history'))
+
+        new_payment = Payment(
+            userid=current_user.userid,
+            eventid=event_id,
+            amount=500,
+            paymentstatus='Paid'
+        )
+
+        db.session.add(new_payment)
+        db.session.commit()
+
+        flash('Registered and payment completed successfully!', 'success')
+        return redirect(url_for('attendee.payment_history'))
+
     except Exception as e:
         db.session.rollback()
-        flash(f'Error during registration: {e}', 'danger')
-       
-    return redirect(url_for('attendee.dashboard'))
-
-@attendee_bp.route('/make-payment/<int:event_id>', methods=['GET', 'POST'])
-@login_required
-def make_payment(event_id):
-    
-    # Stores payment details for an event
-    if request.method == 'POST':
-        paymentstatus = request.form.get('paymentstatus')
-
-        payment = Payment(
-            userid=current_user.user_id,
-            eventid=event_id,
-            paymentstatus=paymentstatus,
-            amount=500
-        )
-        
-        db.session.add(payment)
-        db.session.commit()
-        
-        flash('Transaction Completed Successfully', 'success')
+        flash(f'Error: {e}', 'danger')
         return redirect(url_for('attendee.dashboard'))
-    
-    return render_template('attendee/make_payment.html', event_id=event_id)
 
 @attendee_bp.route('/my-registrations')
 @login_required
