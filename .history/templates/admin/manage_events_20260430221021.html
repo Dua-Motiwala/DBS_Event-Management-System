@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Events - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>Global Event Management</h2>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);">
+        <thead style="background: var(--primary-color); color: white;">
+            <tr>
+                <th style="padding: 15px; text-align: left;">ID</th>
+                <th style="padding: 15px; text-align: left;">Title</th>
+                <th style="padding: 15px; text-align: left;">Date</th>
+                <th style="padding: 15px; text-align: left;">Organizer</th>
+                <th style="padding: 15px; text-align: left;">Venue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 15px;">{{ event.eventid }}</td>
+                <td style="padding: 15px;">{{ event.title }}</td>
+                <td style="padding: 15px;">{{ event.eventdate.strftime('%Y-%m-%d') }}</td>
+                <td style="padding: 15px;">{{ event.organizer.name }}</td>
+                <td style="padding: 15px;">{{ event.venue.name if event.venue else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

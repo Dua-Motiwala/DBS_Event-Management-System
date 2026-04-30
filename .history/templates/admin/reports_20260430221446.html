@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}System Reports - Admin{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>System Reports & Analytics</h2>
+    <p style="color: #666; margin-bottom: 30px;">This report is generated using <strong>SQL Views</strong> and <strong>Advanced Joins</strong>.</p>
+
+    <!-- Category Stats (Dynamic Input) -->
+    <div class="card" style="margin-bottom: 40px;">
+        <h3 class="card-title">Event Statistics by Category</h3>
+        <form action="{{ url_for('admin.reports') }}" method="GET" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="number" name="category_id" placeholder="Enter Category ID" style="padding: 8px; border: 1px solid #ddd; border-radius: 5px;" value="{{ request.args.get('category_id', '') }}">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+
+        {% if stats %}
+        <div style="background: #f7fafc; padding: 15px; border-radius: 8px;">
+            <p><strong>Category:</strong> {{ stats.CategoryName }}</p>
+            <p><strong>Total Events:</strong> {{ stats.EventCount }} (Calculated via <code>COUNT()</code> built-in function)</p>
+        </div>
+        {% elif request.args.get('category_id') %}
+        <p style="color: #e53e3e;">No data found for the specified Category ID.</p>
+        {% endif %}
+    </div>
+
+    <!-- Detailed Event Summary (View + Join) -->
+    <h3 style="margin-bottom: 20px;">Detailed Event Summary (via View)</h3>
+    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);">
+        <thead style="background: var(--primary-color); color: white;">
+            <tr>
+                <th style="padding: 15px; text-align: left;">Title</th>
+                <th style="padding: 15px; text-align: left;">Date</th>
+                <th style="padding: 15px; text-align: left;">Venue</th>
+                <th style="padding: 15px; text-align: left;">Category</th>
+                <th style="padding: 15px; text-align: left;">Organizer</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in event_details %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 15px; font-weight: 600;">{{ event.Title }}</td>
+                <td style="padding: 15px;">{{ event.EventDate.strftime('%Y-%m-%d') if event.EventDate else 'N/A' }}</td>
+                <td style="padding: 15px;">{{ event.VenueName }} ({{ event.Location }})</td>
+                <td style="padding: 15px;">{{ event.CategoryName }}</td>
+                <td style="padding: 15px;">{{ event.OrganizerName }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

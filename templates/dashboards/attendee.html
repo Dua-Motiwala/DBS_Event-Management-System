@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Attendee Dashboard - UniEvents{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>Welcome, {{ current_user.name }}!</h2>
+    <p>Track your registrations and explore new events.</p>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-calendar-check"></i> My Registrations</h3>
+            <p>You have registered for {{ registrations|length }} events.</p>
+            <a href="{{ url_for('attendee.my_registrations') }}" class="btn btn-primary" style="margin-top: 10px;">View All</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-credit-card"></i> Payments</h3>
+            <p>View your payment history and pending dues.</p>
+            <a href="{{ url_for('attendee.payment_history') }}" class="btn btn-primary" style="margin-top: 10px;">Check History</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-search"></i> Discover</h3>
+            <p>Find more events matching your interests.</p>
+            <a href="{{ url_for('index') }}" class="btn btn-primary" style="margin-top: 10px;">Browse Events</a>
+        </div>
+    </div>
+
+    <div style="margin-top: 50px;">
+        <h3>My Upcoming Events</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);">
+            <thead style="background: var(--primary-color); color: white;">
+                <tr>
+                    <th style="padding: 15px; text-align: left;">Event Name</th>
+                    <th style="padding: 15px; text-align: left;">Date</th>
+                    <th style="padding: 15px; text-align: left;">Venue</th>
+                    <th style="padding: 15px; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in registrations %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px;">{{ reg.event.title }}</td>
+                    <td style="padding: 15px;">{{ reg.event.eventdate.strftime('%B %d, %Y') }}</td>
+                    <td style="padding: 15px;">{{ reg.event.venue.name if reg.event.venue else 'Online' }}</td>
+                    <td style="padding: 15px;">
+                        <a href="{{ url_for('event_details', event_id=reg.eventid) }}" class="btn btn-primary" style="font-size: 0.8rem; padding: 5px 10px;">View Details</a>
+                        <a href="{{ url_for('attendee.give_feedback', event_id=reg.eventid) }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 5px 10px; color: var(--primary-color); border-color: var(--primary-color);">Feedback</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="padding: 30px; text-align: center; color: #777;">You haven't registered for any events yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

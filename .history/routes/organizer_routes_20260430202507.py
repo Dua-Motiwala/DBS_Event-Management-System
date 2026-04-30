@@ -133,14 +133,14 @@ def view_feedback(event_id):
 @organizer_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
-def delete_event(event_id):    
+def delete_event(eventid):    
     event = Event.query.get_or_404(event_id)
     if event.userid != current_user.userid:
         flash('Unauthorized.', 'danger')
         return redirect(url_for('organizer.dashboard'))
     
     try:
-        # Calling Subprogram
+        # Calling Subprogram (Requirement: Program/Subprogram)
         db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
         db.session.commit()
         flash('Event cancelled and deleted successfully.', 'success')

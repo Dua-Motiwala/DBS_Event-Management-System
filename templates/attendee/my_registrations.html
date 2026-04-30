@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}My Registrations - UniEvents{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>My Registered Events</h2>
+    
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);">
+        <thead style="background: var(--primary-color); color: white;">
+            <tr>
+                <th style="padding: 15px; text-align: left;">Event</th>
+                <th style="padding: 15px; text-align: left;">Date</th>
+                <th style="padding: 15px; text-align: left;">Venue</th>
+                <th style="padding: 15px; text-align: left;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reg in registrations %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 15px;">{{ reg.event.title }}</td>
+                <td style="padding: 15px;">{{ reg.event.eventdate.strftime('%Y-%m-%d') }}</td>
+                <td style="padding: 15px;">{{ reg.event.venue.name if reg.event.venue else 'N/A' }}</td>
+                <td style="padding: 15px;"><span class="badge" style="background: #c6f6d5; padding: 5px 10px; border-radius: 20px;">Confirmed</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="padding: 30px; text-align: center; color: #777;">You haven't registered for any events yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

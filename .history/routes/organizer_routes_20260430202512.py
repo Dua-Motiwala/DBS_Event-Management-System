@@ -140,7 +140,7 @@ def delete_event(event_id):
         return redirect(url_for('organizer.dashboard'))
     
     try:
-        # Calling Subprogram
+        # Calling Subprogram (Requirement: Program/Subprogram)
         db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
         db.session.commit()
         flash('Event cancelled and deleted successfully.', 'success')

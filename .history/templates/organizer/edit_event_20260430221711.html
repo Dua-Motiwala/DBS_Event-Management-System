@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Event - Organizer{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 style="text-align: center; margin-bottom: 30px;">Edit Event</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="title">Event Title</label>
+            <input type="text" id="title" name="title" required value="{{ event.title }}">
+        </div>
+        <div class="form-group">
+            <label for="date">Event Date</label>
+            <input type="date" id="date" name="date" required value="{{ event.eventdate.strftime('%Y-%m-%d') }}">
+        </div>
+        <div class="form-group">
+            <label for="venue">Venue</label>
+            <select id="venue" name="venue">
+                {% for venue in venues %}
+                <option value="{{ venue.venueid }}" {% if venue.venueid == event.venueid %}selected{% endif %}>{{ venue.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                {% for cat in categories %}
+                <option value="{{ cat.categoryid }}" {% if cat.categoryid == event.categoryid %}selected{% endif %}>{{ cat.categoryname }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">Update Event</button>
+    </form>
+</div>
+{% endblock %}

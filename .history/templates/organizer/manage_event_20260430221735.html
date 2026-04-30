@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Event - Organizer{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>Manage: {{ event.title }}</h2>
+    
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3 class="card-title">Event Details</h3>
+            <p><strong>Date:</strong> {{ event.eventdate.strftime('%B %d, %Y') }}</p>
+            <p><strong>Venue:</strong> {{ event.venue.name if event.venue else 'N/A' }}</p>
+            <p><strong>Category:</strong> {{ event.category.categoryname if event.category else 'N/A' }}</p>
+        </div>
+        <div class="card">
+            <h3 class="card-title">Registration Summary</h3>
+            <p>Total Participants: {{ event.registrations|length }}</p>
+            <a href="{{ url_for('organizer.view_participants', event_id=event.eventid) }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View List</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title">Schedule & Timing</h3>
+            <a href="{{ url_for('organizer.manage_schedule', event_id=event.eventid) }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">Manage Times</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title">Participant Feedback</h3>
+            <a href="{{ url_for('organizer.view_feedback', event_id=event.eventid) }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View Reviews</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

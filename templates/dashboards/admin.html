@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - UniEvents{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>System Overview</h2>
+    <p>Monitor and manage all aspects of the University Event Management System.</p>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-users"></i> Users</h3>
+            <p>Total: {{ stats.users }}</p>
+            <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">Manage</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-calendar-check"></i> Registrations</h3>
+            <a href="{{ url_for('admin.view_registrations') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View All</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-comments"></i> Feedback</h3>
+            <a href="{{ url_for('admin.view_feedback') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View All</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> Venues</h3>
+            <a href="{{ url_for('admin.manage_venues') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">Manage</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-tags"></i> Categories</h3>
+            <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">Manage</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Payments</h3>
+            <p>Total Revenue: ${{ stats.payments }}</p>
+            <a href="{{ url_for('admin.manage_payments') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View All</a>
+        </div>
+        <div class="card">
+            <h3 class="card-title"><i class="fas fa-history"></i> Admin Logs</h3>
+            <a href="{{ url_for('admin.view_logs') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View Activity</a>
+        </div>
+    </div>
+
+    <div style="margin-top: 50px; text-align: center;">
+        <a href="{{ url_for('admin.reports') }}" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem;"><i class="fas fa-chart-line"></i> Generate System Reports</a>
+    </div>
+</div>
+{% endblock %}

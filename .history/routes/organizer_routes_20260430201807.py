@@ -79,10 +79,13 @@ def edit_event(event_id):
         event.venueid = request.form.get('venue')  
         event.categoryid = request.form.get('category')  
         
-
-        db.session.commit()
-        flash('Event updated!', 'success')
-        return redirect(url_for('organizer.manage_event', event_id=event_id))
+        try:
+            db.session.commit()
+            flash('Event updated!', 'success')
+            return redirect(url_for('organizer.manage_event', eventid=event.eventid))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error occurred while updating the event.', 'danger')
 
     venues = Venue.query.all()
     categories = Category.query.all()
@@ -91,61 +94,52 @@ def edit_event(event_id):
 @organizer_bp.route('/event-schedule/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 @organizer_required
-def manage_schedule(event_id):
-    event = Event.query.get_or_404(event_id)
+def manage_schedule(eventid):
+    event = Event.query.get_or_404(eventid)
     
     if request.method == 'POST':
-        start_str = request.form.get('start_time')
-        end_str = request.form.get('end_time')
+        starttime = request.form.get('starttime')
+        endtime = request.form.get('endtime')
         
-        try:
-            from datetime import datetime
-            # Format from HTML datetime-local is YYYY-MM-DDTHH:MM
-            start_time = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
-            end_time = datetime.strptime(end_str, '%Y-%m-%dT%H:%M')
-            
-            new_slot = EventSchedule(eventid=event_id, starttime=start_time, endtime=end_time)
-            db.session.add(new_slot)
+        if starttime and endtime:
+            new_schedule = EventSchedule(
+                eventid=event.eventid,  
+                starttime=starttime,  
+                endtime=endtime  
+            )
+            db.session.add(new_schedule)
             db.session.commit()
-            flash('Schedule slot added!', 'success')
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error adding schedule: {e}', 'danger')
-            
+            flash('Schedule item added.', 'success')
+        else:
+            flash('Please fill in all schedule fields.', 'danger')
+
+    venues = Venue.query.all()
+    categories = Category.query.all()
     return render_template('organizer/schedule.html', event=event)
 
 @organizer_bp.route('/participants/<int:event_id>')
 @login_required
 @organizer_required
-def view_participants(event_id):
-    event = Event.query.get_or_404(event_id)
-    participants = Registration.query.filter_by(eventid=event_id).all()
+def view_participants(eventid):
+    event = Event.query.get_or_404(eventid)
+    participants = Registration.query.filter_by(eventid=eventid).all()
+    feedbacks = Feedback.query.filter_by(eventid=eventid).all()
     return render_template('organizer/participants.html', event=event, participants=participants, feedbacks=feedbacks)
 
 @organizer_bp.route('/feedback/<int:event_id>')
 @login_required
 @organizer_required
-def view_feedback(event_id):
-    event = Event.query.get_or_404(event_id)
-    feedbacks = Feedback.query.filter_by(eventid=event_id).all()
+def view_feedback(eventid):
+    event = Event.query.get_or_404(eventid)
+    feedbacks = Feedback.query.filter_by(eventid=eventid).all()
     return render_template('organizer/feedback.html', event=event, feedbacks=feedbacks)
 
 @organizer_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
-def delete_event(event_id):    
-    event = Event.query.get_or_404(event_id)
-    if event.userid != current_user.userid:
-        flash('Unauthorized.', 'danger')
-        return redirect(url_for('organizer.dashboard'))
-    
-    try:
-        # Calling Subprogram
-        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
-        db.session.commit()
-        flash('Event cancelled and deleted successfully.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error cancelling event: {e}', 'danger')
-    
+def delete_event(eventid):    
+    event = Event.query.get_or_404(eventid)
+    db.session.delete(event)
+    db.session.commit()
+    flash('Event successfully DELETED!', 'success')
     return redirect(url_for('organizer.dashboard'))

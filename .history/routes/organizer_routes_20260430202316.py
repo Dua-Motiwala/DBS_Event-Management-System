@@ -127,25 +127,15 @@ def view_participants(event_id):
 @organizer_required
 def view_feedback(event_id):
     event = Event.query.get_or_404(event_id)
-    feedbacks = Feedback.query.filter_by(eventid=event_id).all()
+    feedbacks = Feedback.query.filter_by(eventid=eventid).all()
     return render_template('organizer/feedback.html', event=event, feedbacks=feedbacks)
 
 @organizer_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
-def delete_event(event_id):    
-    event = Event.query.get_or_404(event_id)
-    if event.userid != current_user.userid:
-        flash('Unauthorized.', 'danger')
-        return redirect(url_for('organizer.dashboard'))
-    
-    try:
-        # Calling Subprogram
-        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
-        db.session.commit()
-        flash('Event cancelled and deleted successfully.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error cancelling event: {e}', 'danger')
-    
+def delete_event(eventid):    
+    event = Event.query.get_or_404(eventid)
+    db.session.delete(event)
+    db.session.commit()
+    flash('Event successfully DELETED!', 'success')
     return redirect(url_for('organizer.dashboard'))

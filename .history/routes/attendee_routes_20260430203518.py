@@ -4,6 +4,7 @@ from models.user_model import db
 from sqlalchemy import text
 from models.event_model import Event
 from models.registration_model import Registration, Payment, Feedback
+import oracledb
 
 attendee_bp = Blueprint('attendee', __name__)
 
@@ -13,8 +14,6 @@ def dashboard():
     registrations = Registration.query.filter_by(userid=current_user.userid).all()
     return render_template('dashboards/attendee.html', registrations=registrations)
 
-@attendee_bp.route('/register-and-pay/<int:event_id>', methods=['GET', 'POST'])
-@login_required
 def register_and_pay(event_id):
     try:
         import oracledb
@@ -71,36 +70,39 @@ def register_and_pay(event_id):
 @attendee_bp.route('/my-registrations')
 @login_required
 def my_registrations():
+    
     # Shows all events the user has registered for
-    registrations = Registration.query.filter_by(userid=current_user.userid).all()
+    registrations=Registration.query.filter_by(userid=current_user.userid).all()
     return render_template('attendee/my_registrations.html', registrations=registrations)
 
 @attendee_bp.route('/payments')
 @login_required
 def payment_history():
+    
     # Shows all payments made by the user
-    payments = Payment.query.filter_by(userid=current_user.userid).all()
+    payments=Payment.query.filter_by(userid=current_user.userid).all()
     return render_template('attendee/payments.html', payments=payments)
 
 @attendee_bp.route('/feedback/<int:event_id>', methods=['GET', 'POST'])
 @login_required
 def give_feedback(event_id):
+    
     # Lets user submit rating and comments for an event
     if request.method == 'POST':
         rating = request.form.get('rating')
-        feedback_text = request.form.get('feedback_text')
+        import oracledbtext = request.form.get('feedback_text')
 
-        new_feedback = Feedback(
-            userid=current_user.userid,
+        feedback = Feedback(
+            userid=current_user.user_id,
             eventid=event_id,
             rating=rating,
             feedbacktext=feedback_text
         )
         
-        db.session.add(new_feedback)
+        db.session.add(feedback)
         db.session.commit()
         
-        flash('Feedback Submitted. Thank you!', 'success')
+        flash('Feedback Submitted', 'success')
         return redirect(url_for('attendee.dashboard'))
     
     return render_template('attendee/feedback.html', event_id=event_id)

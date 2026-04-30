@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div style="margin-top: 40px;">
+    <h2>Attendee Feedback: {{ event.title }}</h2>
+    
+    <div class="dashboard-grid">
+        {% for fb in feedbacks %}
+        <div class="card">
+            <h3 class="card-title">Rating: {{ fb.rating }}/5</h3>
+            <p>"{{ fb.feedbacktext }}"</p>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">— {{ fb.user.name }}</p>
+        </div>
+        {% else %}
+        <p>No feedback received yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

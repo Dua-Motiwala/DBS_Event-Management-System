@@ -91,7 +91,7 @@ def give_feedback(event_id):
         feedback_text = request.form.get('feedback_text')
 
         new_feedback = Feedback(
-            userid=current_user.userid,
+            userid=current_user.userid,  # Fixed from user_id to userid
             eventid=event_id,
             rating=rating,
             feedbacktext=feedback_text
