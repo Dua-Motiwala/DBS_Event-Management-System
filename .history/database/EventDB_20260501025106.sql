@@ -237,8 +237,7 @@ CREATE OR REPLACE VIEW vw_Event_Details AS
 SELECT 
     e.EventID, 
     e.Title, 
-    e.EventDate,
-    e.CategoryID, 
+    e.EventDate, 
     v.Name AS VenueName, 
     v.Location, 
     c.CategoryName,

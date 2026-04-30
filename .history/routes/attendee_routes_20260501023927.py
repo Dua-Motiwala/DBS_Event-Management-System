@@ -2,10 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models.user_model import db
 from sqlalchemy import text
-from datetime import datetime, timedelta
 from models.event_model import Event
 from models.registration_model import Registration, Payment, Feedback
-import oracledb
 
 attendee_bp = Blueprint('attendee', __name__)
 
@@ -21,13 +19,6 @@ def register_and_pay(event_id):
     # Only Attendees can register
     if current_user.role != 'Attendee':
         flash('Only attendees can register for events.', 'warning')
-        return redirect(url_for('index'))
-    
-    event = Event.query.get_or_404(event_id)
-    
-    # Registration ends 1 day before the event
-    if datetime.utcnow().date() >= (event.eventdate - timedelta(days=1)):
-        flash('Registration for this event is now closed.', 'info')
         return redirect(url_for('index'))
     try:
         import oracledb

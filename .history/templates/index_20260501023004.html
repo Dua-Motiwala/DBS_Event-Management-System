@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Home - UniEvents{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>Empowering University Life</h1>
+        <p>Discover, Register, and Participate in the best university events.</p>
+        
+        <form action="/" method={% extends "base.html" %}
+
+{% block title %}Home - UniEvents{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>Empowering University Life</h1>
+        <p>Discover, Register, and Participate in the best university events.</p>
+        
+        <form action="/" method="GET" class="search-bar" style="max-width: 600px; margin: 30px auto; display: flex; gap: 10px;">
+            <input type="text" name="search" placeholder="Search events by title..." style="flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none;" value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+        </form>
+
+        {% if not current_user.is_authenticated %}
+            <div style="margin-top: 30px;">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Sign In</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<div class="container">
+    <h2 style="margin-bottom: 30px;">Upcoming Events</h2>
+    <div class="dashboard-grid">
+        {% for event in events %}
+            <div class="card">
+                <h3 class="card-title"><a href="{{ url_for('event_details', event_id=event.eventid) }}" style="text-decoration: none; color: var(--primary-color);">{{ event.title }}</a></h3>
+                <p><i class="far fa-calendar-alt"></i> {{ event.eventdate.strftime('%B %d, %Y') }}</p>
+                <p><i class="fas fa-map-marker-alt"></i> {{ event.venue.name if event.venue else 'Online' }}</p>
+                <p><i class="fas fa-tag"></i> {{ event.category.categoryname if event.category else 'General' }}</p>
+                <div style="margin-top: 15px;">
+                    {% if not current_user.is_authenticated or current_user.role == 'Attendee' %}
+                    <a href="{{ url_for('attendee.register_and_pay', event_id=event.eventid) }}" class="btn btn-primary" style="width: 100%; text-align: center;">Register Now</a>
+                    {% else %}
+                    <p style="text-align: center; color: #777; font-size: 0.9rem;">Registrations limited to Attendees</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <p>No upcoming events at the moment. Check back soon!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+"GET" class="search-bar" style="max-width: 600px; margin: 30px auto; display: flex; gap: 10px;">
+            <input type="text" name="search" placeholder="Search events by title..." style="flex: 1; padding: 12px; border-radius: 8px; border: none; outline: none;" value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Search</button>
+        </form>
+
+        {% if not current_user.is_authenticated %}
+            <div style="margin-top: 30px;">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Sign In</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<div class="container">
+    <h2 style="margin-bottom: 30px;">Upcoming Events</h2>
+    <div class="dashboard-grid">
+        {% for event in events %}
+            <div class="card">
+                <h3 class="card-title"><a href="{{ url_for('event_details', event_id=event.eventid) }}" style="text-decoration: none; color: var(--primary-color);">{{ event.title }}</a></h3>
+                <p><i class="far fa-calendar-alt"></i> {{ event.eventdate.strftime('%B %d, %Y') }}</p>
+                <p><i class="fas fa-map-marker-alt"></i> {{ event.venue.name if event.venue else 'Online' }}</p>
+                <p><i class="fas fa-tag"></i> {{ event.category.categoryname if event.category else 'General' }}</p>
+                <div style="margin-top: 15px;">
+                    {% if not current_user.is_authenticated or current_user.role == 'Attendee' %}
+                    <a href="{{ url_for('attendee.register_and_pay', event_id=event.eventid) }}" class="btn btn-primary" style="width: 100%; text-align: center;">Register Now</a>
+                    {% else %}
+                    <p style="text-align: center; color: #777; font-size: 0.9rem;">Registrations limited to Attendees</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <p>No upcoming events at the moment. Check back soon!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

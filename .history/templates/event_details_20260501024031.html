@@ -26,11 +26,7 @@
         </div>
 
         <div style="margin-top: 40px;">
-            {% if today >= event.eventdate %}
-                <p style="color: #e53e3e; font-weight: 600;">This event has already taken place.</p>
-            {% elif today >= (event.eventdate - day_delta) %}
-                <p style="color: #777;">Registration for this event is now closed.</p>
-            {% elif not current_user.is_authenticated %}
+            {% if not current_user.is_authenticated %}
                 <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem;">Login to Register</a>
             {% elif current_user.role == 'Attendee' %}
                 <a href="{{ url_for('attendee.register_and_pay', event_id=event.eventid) }}" class="btn btn-primary" style="padding: 15px 40px; font-size: 1.1rem;">Register Now</a>

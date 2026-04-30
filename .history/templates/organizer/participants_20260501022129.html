@@ -22,7 +22,7 @@
                 <td style="padding: 15px;">{{ reg.user.email }}</td>
                 <td style="padding: 15px;">{{ reg.regdate.strftime('%Y-%m-%d') }}</td>
                 <td style="padding: 15px;">
-                    <form action="{{ url_for('organizer.cancel_registration', reg_id=reg.regid) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this student\'s registration?');">
+                    <form action="{{ url_for('organizer.cancel_registration', reg_id=reg.registrationid) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this student\'s registration?');">
                         <button type="submit" class="btn btn-outline" style="font-size: 0.8rem; color: #e53e3e; border-color: #e53e3e; padding: 5px 10px;">Cancel</button>
                     </form>
                 </td>

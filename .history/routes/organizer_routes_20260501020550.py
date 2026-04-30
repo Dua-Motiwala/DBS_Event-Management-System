@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from models.user_model import db
-from sqlalchemy import text
 from models.event_model import Event, Venue, Category, EventSchedule
 from models.registration_model import Registration, Feedback
 
@@ -43,13 +42,14 @@ def create_event():
             categoryid=category_id, 
             userid=current_user.userid
         )
+        
         db.session.add(new_event)
         db.session.commit()
         flash('Event created successfully!', 'success')
         return redirect(url_for('organizer.dashboard'))
-        
+    
     venues = Venue.query.all()
-    categories = Category.query.all()
+    categories = Category.query.all()   
     return render_template('organizer/create_event.html', venues=venues, categories=categories)
 
 @organizer_bp.route('/manage-event/<int:event_id>')
@@ -70,19 +70,20 @@ def edit_event(event_id):
     if event.userid != current_user.userid:
         flash('Unauthorized.', 'danger')
         return redirect(url_for('organizer.dashboard'))
-        
+    
     if request.method == 'POST':
         event.title = request.form.get('title')
         date_str = request.form.get('date')
         from datetime import datetime
         event.eventdate = datetime.strptime(date_str, '%Y-%m-%d').date()
-        event.venueid = request.form.get('venue')
-        event.categoryid = request.form.get('category')
+        event.venueid = request.form.get('venue')  
+        event.categoryid = request.form.get('category')  
         
+
         db.session.commit()
         flash('Event updated!', 'success')
         return redirect(url_for('organizer.manage_event', event_id=event_id))
-        
+
     venues = Venue.query.all()
     categories = Category.query.all()
     return render_template('organizer/edit_event.html', event=event, venues=venues, categories=categories)
@@ -92,6 +93,7 @@ def edit_event(event_id):
 @organizer_required
 def manage_schedule(event_id):
     event = Event.query.get_or_404(event_id)
+    
     if request.method == 'POST':
         start_str = request.form.get('start_time')
         end_str = request.form.get('end_time')
@@ -127,38 +129,18 @@ def view_feedback(event_id):
     event = Event.query.get_or_404(event_id)
     feedbacks = Feedback.query.filter_by(eventid=event_id).all()
     return render_template('organizer/feedback.html', event=event, feedbacks=feedbacks)
-    
-@organizer_bp.route('/cancel-registration/<int:reg_id>', methods=['POST'])
-@login_required
-@organizer_required
-def cancel_registration(reg_id):
-    registration = Registration.query.get_or_404(reg_id)
-    # Security: Ensure this event belongs to the organizer
-    if registration.event.userid != current_user.userid:
-        flash('Unauthorized action.', 'danger')
-        return redirect(url_for('organizer.dashboard'))
-    
-    try:
-        db.session.delete(registration)
-        db.session.commit()
-        flash('Registration has been cancelled.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error: {e}', 'danger')
-        
-    return redirect(url_for('organizer.view_participants', event_id=registration.eventid))
 
 @organizer_bp.route('/delete-event/<int:event_id>', methods=['POST'])
 @login_required
 @organizer_required
-def delete_event(event_id):
+def delete_event(event_id):    
     event = Event.query.get_or_404(event_id)
     if event.userid != current_user.userid:
         flash('Unauthorized.', 'danger')
         return redirect(url_for('organizer.dashboard'))
     
     try:
-        # Calling Subprogram (Requirement: Program/Subprogram)
+        # Calling Subprogram
         db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
         db.session.commit()
         flash('Event cancelled and deleted successfully.', 'success')

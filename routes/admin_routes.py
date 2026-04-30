@@ -16,7 +16,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     wrapper.__name__ = f.__name__
     return wrapper
- 
+
 @admin_bp.route('/dashboard')
 @login_required
 @admin_required
@@ -41,7 +41,7 @@ def manage_users():
 @admin_required
 def delete_user(user_id):
     try:
-        # Calling Subprogram/Procedure
+        # Calling Subprogram/Procedure (Requirement: Program/Subprogram)
         db.session.execute(text("BEGIN sp_Delete_User(:uid); END;"), {"uid": user_id})
         db.session.commit()
         flash('User deleted successfully.', 'success')
@@ -68,7 +68,7 @@ def manage_venues():
         new_venue = Venue(name=name, location=location, capacity=capacity)
         db.session.add(new_venue)
         
-        # Adding admin actions in AdminLog
+        # Log the action
         new_log = AdminLog(userid=current_user.userid, action=f"Added new venue: {name}")
         db.session.add(new_log)
         
@@ -86,7 +86,7 @@ def manage_categories():
         new_cat = Category(categoryname=name)
         db.session.add(new_cat)
         
-        # Adding admin actions in AdminLog
+        # Log the action
         new_log = AdminLog(userid=current_user.userid, action=f"Added new category: {name}")
         db.session.add(new_log)
         
@@ -129,19 +129,30 @@ def view_logs():
 @login_required
 @admin_required
 def reports():
-
-    # Using raw SQL to fetch event details from the View we created
+    # Requirement: Advanced SQL features, Joins, Built-in functions, Views
+    # Using raw SQL to fetch data from the View we created
+    # Aliasing columns with double quotes to preserve case for Jinja2 template
     sql = text("""
-        SELECT * FROM vw_Event_Details 
-        ORDER BY EventDate DESC
+        SELECT 
+            Title as "Title", 
+            EventDate as "EventDate", 
+            VenueName as "VenueName", 
+            Location as "Location", 
+            CategoryName as "CategoryName", 
+            OrganizerName as "OrganizerName"
+        FROM vw_Event_Details 
+        ORDER BY "EventDate" DESC
     """)
     event_details = db.session.execute(sql).fetchall()
     
-    # Using raw SQL to count events that exist in the selected category through dynamic input handling    
+    # Another query with built-in functions and dynamic input handling
+    # Requirement: Dynamic user input handling
     category_id = request.args.get('category_id')
     if category_id:
         stats_sql = text("""
-            SELECT CategoryName, COUNT(*) as EventCount 
+            SELECT 
+                CategoryName as "CategoryName", 
+                COUNT(*) as "EventCount" 
             FROM vw_Event_Details 
             WHERE CategoryID = :cat_id 
             GROUP BY CategoryName
