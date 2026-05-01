@@ -17,8 +17,6 @@ def admin_required(f):
     wrapper.__name__ = f.__name__
     return wrapper
 
-from models.registration_model import Payment, AdminLog, Registration
-
 @admin_bp.route('/dashboard')
 @login_required
 @admin_required
@@ -26,7 +24,7 @@ def dashboard():
     stats = {
         'users': User.query.count(),
         'events': Event.query.count(),
-        'registrations': Registration.query.count(),
+        'registrations': 0, # Add registration count later
         'payments': db.session.query(db.func.sum(Payment.amount)).scalar() or 0
     }
     return render_template('dashboards/admin.html', stats=stats)
@@ -131,8 +129,9 @@ def view_logs():
 @login_required
 @admin_required
 def reports():
-
+    # Requirement: Advanced SQL features, Joins, Built-in functions, Views
     # Using raw SQL to fetch data from the View we created
+    # Aliasing columns with double quotes to preserve case for Jinja2 template
     sql = text("""
         SELECT 
             Title as "Title", 
@@ -148,6 +147,7 @@ def reports():
     event_details = db.session.execute(sql).fetchall()
     
     # Another query with built-in functions and dynamic input handling
+    # Requirement: Dynamic user input handling
     category_id = request.args.get('category_id')
     if category_id:
         stats_sql = text("""
@@ -162,77 +162,4 @@ def reports():
     else:
         stats = None
 
-    # Fetch all categories for the dropdown filter
-    all_categories = Category.query.all()
-
-    return render_template('admin/reports.html', event_details=event_details, stats=stats, categories=all_categories)
-@admin_bp.route('/delete-venue/<int:venue_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_venue(venue_id):
-    venue = Venue.query.get_or_404(venue_id)
-    try:
-        # Restriction: Check if venue is being used by any events
-        linked_events = Event.query.filter_by(venueid=venue_id).count()
-        if linked_events > 0:
-            flash(f'Cannot delete venue. It is currently linked to {linked_events} event(s).', 'danger')
-            return redirect(url_for('admin.manage_venues'))
-            
-        db.session.delete(venue)
-        
-        # Log the action
-        new_log = AdminLog(userid=current_user.userid, action=f"Deleted venue: {venue.name}")
-        db.session.add(new_log)
-        
-        db.session.commit()
-        flash('Venue deleted successfully.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting venue: {e}', 'danger')
-    return redirect(url_for('admin.manage_venues'))
-
-@admin_bp.route('/delete-category/<int:category_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_category(category_id):
-    category = Category.query.get_or_404(category_id)
-    try:
-        # Restriction: Check if category is being used by any events
-        linked_events = Event.query.filter_by(categoryid=category_id).count()
-        if linked_events > 0:
-            flash(f'Cannot delete category. It is currently linked to {linked_events} event(s).', 'danger')
-            return redirect(url_for('admin.manage_categories'))
-            
-        db.session.delete(category)
-        
-        # Log the action
-        new_log = AdminLog(userid=current_user.userid, action=f"Deleted category: {category.categoryname}")
-        db.session.add(new_log)
-        
-        db.session.commit()
-        flash('Category deleted successfully.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting category: {e}', 'danger')
-    return redirect(url_for('admin.manage_categories'))
-
-@admin_bp.route('/delete-event/<int:event_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_event(event_id):
-    event = Event.query.get_or_404(event_id)
-    title = event.title
-    try:
-        # Calling Subprogram/Procedure: sp_Cancel_Event handles all dependencies
-        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
-        
-        # Log the action
-        new_log = AdminLog(userid=current_user.userid, action=f"Admin deleted event: {title}")
-        db.session.add(new_log)
-        
-        db.session.commit()
-        flash('Event and all related records deleted.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting event: {e}', 'danger')
-    return redirect(url_for('admin.manage_events'))
+    return render_template('admin/reports.html', event_details=event_details, stats=stats)

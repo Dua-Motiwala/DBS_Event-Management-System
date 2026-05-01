@@ -50,7 +50,7 @@
                             class="btn btn-outline"
                             style="font-size: 0.8rem; text-align: center; color: var(--primary-color); border-color: var(--primary-color);">Attendees</a>
                         <form action="{{ url_for('organizer.delete_event', event_id=event.eventid) }}" method="POST"
-                            onsubmit="confirmAction(event, 'Cancel Event', 'Are you sure you want to CANCEL and DELETE this event? This action cannot be undone.', 'Cancel Event', '#e53e3e')">
+                            onsubmit="return confirm('Are you sure you want to CANCEL and DELETE this event? This action cannot be undone.');">
                             <button type="submit" class="btn btn-outline"
                                 style="width: 100%; font-size: 0.8rem; color: #e53e3e; border-color: #e53e3e;">Cancel
                                 Event</button>

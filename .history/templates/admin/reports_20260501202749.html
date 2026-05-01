@@ -5,6 +5,7 @@
 {% block content %}
 <div style="margin-top: 40px;">
     <h2>System Reports & Analytics</h2>
+    <p style="color: #666; margin-bottom: 30px;">This report is generated using <strong>SQL Views</strong> and <strong>Advanced Joins</strong>.</p>
 
     <!-- Category Stats (Dynamic Input) -->
     <div class="card" style="margin-bottom: 40px;">
@@ -24,7 +25,7 @@
         {% if stats %}
         <div style="background: #f7fafc; padding: 15px; border-radius: 8px;">
             <p><strong>Category:</strong> {{ stats.CategoryName }}</p>
-            <p><strong>Total Events:</strong> {{ stats.EventCount }}</p>
+            <p><strong>Total Events:</strong> {{ stats.EventCount }} (Calculated via <code>COUNT()</code> built-in function)</p>
         </div>
         {% elif request.args.get('category_id') %}
         <p style="color: #e53e3e;">No data found for the specified Category ID.</p>
@@ -32,7 +33,7 @@
     </div>
 
     <!-- Detailed Event Summary (View + Join) -->
-    <h3 style="margin-bottom: 20px;">Detailed Event Summary</h3>
+    <h3 style="margin-bottom: 20px;">Detailed Event Summary (via View)</h3>
     <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: var(--shadow);">
         <thead style="background: var(--primary-color); color: white;">
             <tr>

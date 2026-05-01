@@ -148,6 +148,7 @@ def reports():
     event_details = db.session.execute(sql).fetchall()
     
     # Another query with built-in functions and dynamic input handling
+    # Requirement: Dynamic user input handling
     category_id = request.args.get('category_id')
     if category_id:
         stats_sql = text("""

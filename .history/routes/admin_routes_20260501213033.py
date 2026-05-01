@@ -133,6 +133,7 @@ def view_logs():
 def reports():
 
     # Using raw SQL to fetch data from the View we created
+    # Aliasing columns with double quotes to preserve case for Jinja2 template
     sql = text("""
         SELECT 
             Title as "Title", 
@@ -148,6 +149,7 @@ def reports():
     event_details = db.session.execute(sql).fetchall()
     
     # Another query with built-in functions and dynamic input handling
+    # Requirement: Dynamic user input handling
     category_id = request.args.get('category_id')
     if category_id:
         stats_sql = text("""

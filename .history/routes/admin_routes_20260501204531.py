@@ -131,7 +131,7 @@ def view_logs():
 @login_required
 @admin_required
 def reports():
-
+    # Requirement: Advanced SQL features, Joins, Built-in functions, Views
     # Using raw SQL to fetch data from the View we created
     sql = text("""
         SELECT 
@@ -215,24 +215,3 @@ def delete_category(category_id):
         db.session.rollback()
         flash(f'Error deleting category: {e}', 'danger')
     return redirect(url_for('admin.manage_categories'))
-
-@admin_bp.route('/delete-event/<int:event_id>', methods=['POST'])
-@login_required
-@admin_required
-def delete_event(event_id):
-    event = Event.query.get_or_404(event_id)
-    title = event.title
-    try:
-        # Calling Subprogram/Procedure: sp_Cancel_Event handles all dependencies
-        db.session.execute(text("BEGIN sp_Cancel_Event(:eid); END;"), {"eid": event_id})
-        
-        # Log the action
-        new_log = AdminLog(userid=current_user.userid, action=f"Admin deleted event: {title}")
-        db.session.add(new_log)
-        
-        db.session.commit()
-        flash('Event and all related records deleted.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting event: {e}', 'danger')
-    return redirect(url_for('admin.manage_events'))

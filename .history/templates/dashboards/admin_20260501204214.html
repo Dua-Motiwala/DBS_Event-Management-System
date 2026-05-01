@@ -14,11 +14,6 @@
             <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">Manage</a>
         </div>
         <div class="card">
-            <h3 class="card-title"><i class="fas fa-calendar-alt"></i> Events</h3>
-            <p>Total: {{ stats.events }}</p>
-            <a href="{{ url_for('admin.manage_events') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">Manage All</a>
-        </div>
-        <div class="card">
             <h3 class="card-title"><i class="fas fa-calendar-check"></i> Registrations</h3>
             <p>Total: {{ stats.registrations }}</p>
             <a href="{{ url_for('admin.view_registrations') }}" class="btn btn-outline" style="margin-top: 10px; color: var(--primary-color); border-color: var(--primary-color);">View All</a>
