@@ -80,7 +80,7 @@ CREATE TABLE Events (
     VenueID NUMBER,
     CategoryID NUMBER,
     UserID NUMBER,
-    Status VARCHAR2(20) DEFAULT 'Active' CHECK (Status IN ('Active', 'Finished')),
+    
     FOREIGN KEY (VenueID) REFERENCES Venues(VenueID),
     FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
     FOREIGN KEY (UserID) REFERENCES Users(UserID)

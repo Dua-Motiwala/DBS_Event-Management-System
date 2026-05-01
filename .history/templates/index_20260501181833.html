@@ -37,7 +37,7 @@
                     {% elif today >= (event.eventdate - day_delta) %}
                         <p style="text-align: center; color: #777; font-size: 0.9rem;">Registration Closed</p>
                     {% elif not current_user.is_authenticated or current_user.role == 'Attendee' %}
-                        <a href="{{ url_for('attendee.register_and_pay', event_id=event.eventid) }}" class="btn btn-primary" style="width: 100%; text-align: center;" onclick="return confirm('Are you sure you want to register for this event?');">Register Now</a>
+                        <a href="{{ url_for('attendee.register_and_pay', event_id=event.eventid) }}" class="btn btn-primary" style="width: 100%; text-align: center;">Register Now</a>
                     {% else %}
                         <p style="text-align: center; color: #777; font-size: 0.9rem;">Registrations limited to Attendees</p>
                     {% endif %}

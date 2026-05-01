@@ -136,7 +136,6 @@ def reports():
         SELECT 
             Title as "Title", 
             EventDate as "EventDate", 
-            Status as "Status",
             VenueName as "VenueName", 
             Location as "Location", 
             CategoryName as "CategoryName", 

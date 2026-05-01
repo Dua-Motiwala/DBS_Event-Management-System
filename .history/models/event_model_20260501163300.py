@@ -23,7 +23,6 @@ class Event(db.Model):
     eventdate = db.Column('EVENTDATE', db.Date)
     venueid = db.Column('VENUEID', db.Integer, db.ForeignKey('VENUES.VENUEID'))
     categoryid = db.Column('CATEGORYID', db.Integer, db.ForeignKey('CATEGORIES.CATEGORYID'))
-    status = db.Column('STATUS', db.String(20), default='Active')
     
     registrations = db.relationship('Registration', backref='event', lazy=True)
     payments = db.relationship('Payment', backref='event', lazy=True)

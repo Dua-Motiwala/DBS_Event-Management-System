@@ -192,24 +192,3 @@ def finish_event(event_id):
         flash(f'Error finishing event: {e}', 'danger')
         
     return redirect(url_for('organizer.dashboard'))
-
-@organizer_bp.route('/delete-schedule/<int:schedule_id>', methods=['POST'])
-@login_required
-@organizer_required
-def delete_schedule(schedule_id):
-    slot = EventSchedule.query.get_or_404(schedule_id)
-    # Security check: Ensure the event belongs to the current organizer
-    if slot.event.userid != current_user.userid:
-        flash('Unauthorized action.', 'danger')
-        return redirect(url_for('organizer.dashboard'))
-    
-    event_id = slot.eventid
-    try:
-        db.session.delete(slot)
-        db.session.commit()
-        flash('Schedule slot removed.', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting schedule slot: {e}', 'danger')
-    
-    return redirect(url_for('organizer.manage_schedule', event_id=event_id))

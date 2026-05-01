@@ -60,7 +60,7 @@ def create_app():
             events = Event.query.filter(Event.title.ilike(f'%{search_query}%'), Event.eventdate >= today).order_by(Event.eventdate.asc()).all()
         else:
             # Show only upcoming events
-            events = Event.query.filter(Event.eventdate >= today).order_by(Event.eventdate.asc()).all()
+            events = Event.query.filter(Event.eventdate >= today).order_by(Event.eventdate.asc()).limit(6).all()
         return render_template('index.html', events=events, today=today, day_delta=timedelta(days=1))
 
     return app
