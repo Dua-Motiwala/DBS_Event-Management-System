@@ -95,6 +95,9 @@ BEGIN
     SELECT events_seq.NEXTVAL INTO :NEW.EventID FROM dual;
 END;
 /
+
+ALTER TABLE Events ADD (Status VARCHAR2(20) DEFAULT 'Active' CHECK (Status IN ('Active', 'Finished')));
+
 ------------------------------------------------------------
 
 
@@ -239,6 +242,7 @@ SELECT
     e.EventID, 
     e.Title, 
     e.EventDate,
+    e.Status,
     e.CategoryID, 
     v.Name AS VenueName, 
     v.Location, 

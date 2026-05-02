@@ -25,6 +25,12 @@ def register_and_pay(event_id):
     
     event = Event.query.get_or_404(event_id)
     
+    # Check Capacity
+    current_registrations = len(event.registrations)
+    if event.venue and event.venue.capacity and current_registrations >= event.venue.capacity:
+        flash(f'Sorry, this event is full (Capacity: {event.venue.capacity}).', 'warning')
+        return redirect(url_for('index'))
+
     # Registration ends 1 day before the event
     if datetime.utcnow().date() >= (event.eventdate - timedelta(days=1)):
         flash('Registration for this event is now closed.', 'info')
