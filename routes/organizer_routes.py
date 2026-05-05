@@ -120,6 +120,13 @@ def edit_event(event_id):
             flash(f'The venue is already booked for another event ("{existing_event.title}") on this day.', 'danger')
             return redirect(url_for('organizer.edit_event', event_id=event_id))
 
+        # Check Capacity if venue is being changed or updated
+        new_venue = Venue.query.get(venue_id)
+        current_registrations = len(event.registrations)
+        if new_venue and new_venue.capacity and current_registrations > new_venue.capacity:
+            flash(f'Cannot change to this venue. Its capacity ({new_venue.capacity}) is lower than the current number of registrations ({current_registrations}).', 'danger')
+            return redirect(url_for('organizer.edit_event', event_id=event_id))
+        
         event.eventdate = event_date
         event.venueid = venue_id
         event.categoryid = request.form.get('category')
