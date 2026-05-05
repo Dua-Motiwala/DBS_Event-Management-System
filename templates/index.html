@@ -36,8 +36,10 @@
             <p><i class="fas fa-map-marker-alt"></i> {{ event.venue.name if event.venue else 'Online' }}</p>
             <p><i class="fas fa-tag"></i> {{ event.category.categoryname if event.category else 'General' }}</p>
             <div style="margin-top: 15px;">
-                {% if today > event.eventdate %}
-                <p style="text-align: center; color: #e53e3e; font-size: 0.9rem; font-weight: 600;">Event Passed</p>
+                {% if today > event.eventdate or event.status == 'Finished' %}
+                <p style="text-align: center; color: #e53e3e; font-size: 0.9rem; font-weight: 600;">Event Passed/Finished</p>
+                {% elif event.status == 'Cancelled' %}
+                <p style="text-align: center; color: #e53e3e; font-size: 0.9rem; font-weight: 600;">Event Cancelled</p>
                 {% elif today >= (event.eventdate - day_delta) %}
                 <p style="text-align: center; color: #777; font-size: 0.9rem;">Registration Closed</p>
                 {% elif not current_user.is_authenticated or current_user.role == 'Attendee' %}

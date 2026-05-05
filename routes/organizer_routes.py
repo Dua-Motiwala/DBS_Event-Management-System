@@ -46,8 +46,14 @@ def create_event():
         category_id = request.form.get('category')
         
         from datetime import datetime
+        today = datetime.utcnow().date()
         event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         
+        # Check if date is in the past
+        if event_date < today:
+            flash('Cannot create an event in the past.', 'danger')
+            return redirect(url_for('organizer.create_event'))
+
         # Check if venue is already booked on this date
         existing_event = Event.query.filter_by(venueid=venue_id, eventdate=event_date).first()
         if existing_event:
@@ -95,8 +101,14 @@ def edit_event(event_id):
         venue_id = request.form.get('venue')
         
         from datetime import datetime
+        today = datetime.utcnow().date()
         event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         
+        # Check if date is in the past
+        if event_date < today:
+            flash('Cannot set an event date to the past.', 'danger')
+            return redirect(url_for('organizer.edit_event', event_id=event_id))
+
         # Check if venue is already booked on this date by another event
         existing_event = Event.query.filter(
             Event.venueid == venue_id, 

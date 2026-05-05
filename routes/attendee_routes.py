@@ -31,6 +31,11 @@ def register_and_pay(event_id):
         flash(f'Sorry, this event is full (Capacity: {event.venue.capacity}).', 'warning')
         return redirect(url_for('index'))
 
+    # Check Status
+    if event.status != 'Active':
+        flash('This event is no longer active and registrations are closed.', 'warning')
+        return redirect(url_for('index'))
+
     # Registration ends 1 day before the event
     if datetime.utcnow().date() >= (event.eventdate - timedelta(days=1)):
         flash('Registration for this event is now closed.', 'info')
