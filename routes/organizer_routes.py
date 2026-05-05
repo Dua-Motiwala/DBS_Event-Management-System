@@ -48,6 +48,12 @@ def create_event():
         from datetime import datetime
         event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
         
+        # Check if venue is already booked on this date
+        existing_event = Event.query.filter_by(venueid=venue_id, eventdate=event_date).first()
+        if existing_event:
+            flash(f'The venue is already booked for another event ("{existing_event.title}") on this day.', 'danger')
+            return redirect(url_for('organizer.create_event'))
+            
         new_event = Event(
             title=title, 
             eventdate=event_date, 
@@ -86,9 +92,24 @@ def edit_event(event_id):
     if request.method == 'POST':
         event.title = request.form.get('title')
         date_str = request.form.get('date')
+        venue_id = request.form.get('venue')
+        
         from datetime import datetime
-        event.eventdate = datetime.strptime(date_str, '%Y-%m-%d').date()
-        event.venueid = request.form.get('venue')
+        event_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        
+        # Check if venue is already booked on this date by another event
+        existing_event = Event.query.filter(
+            Event.venueid == venue_id, 
+            Event.eventdate == event_date, 
+            Event.eventid != event_id
+        ).first()
+        
+        if existing_event:
+            flash(f'The venue is already booked for another event ("{existing_event.title}") on this day.', 'danger')
+            return redirect(url_for('organizer.edit_event', event_id=event_id))
+
+        event.eventdate = event_date
+        event.venueid = venue_id
         event.categoryid = request.form.get('category')
         
         db.session.commit()
