@@ -147,6 +147,16 @@ def manage_schedule(event_id):
             start_time = datetime.strptime(start_str, '%Y-%m-%dT%H:%M')
             end_time = datetime.strptime(end_str, '%Y-%m-%dT%H:%M')
             
+            # 1. Check if start time is before end time
+            if start_time >= end_time:
+                flash('Start time must be before end time.', 'danger')
+                return redirect(url_for('organizer.manage_schedule', event_id=event_id))
+            
+            # 2. Check if schedule times are on the same day as the event
+            if start_time.date() != event.eventdate or end_time.date() != event.eventdate:
+                flash(f'Schedule times must be on the same day as the event ({event.eventdate}).', 'danger')
+                return redirect(url_for('organizer.manage_schedule', event_id=event_id))
+
             new_slot = EventSchedule(eventid=event_id, starttime=start_time, endtime=end_time)
             db.session.add(new_slot)
             db.session.commit()
