@@ -44,7 +44,7 @@ def manage_users():
 def delete_user(user_id):
     try:
         # Calling Subprogram/Procedure (Requirement: Program/Subprogram)
-        db.session.execute(text("BEGIN sp_Delete_User(:uid); END;"), {"uid": user_id})
+        db.session.execute(text("BEGIN sp_Delete_User(:p_userid); END;"), {"p_userid": user_id})
         db.session.commit()
         flash('User deleted successfully.', 'success')
     except Exception as e:
